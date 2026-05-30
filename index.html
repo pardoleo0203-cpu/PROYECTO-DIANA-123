@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integración por Partes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b3e;
+    --teal: #0e8a7c;
+    --teal-light: #13b5a3;
+    --gold: #f5a623;
+    --gold-light: #ffd166;
+    --coral: #e84393;
+    --blue: #2563eb;
+    --green: #16a34a;
+    --purple: #7c3aed;
+    --orange: #ea580c;
+    --bg: #f7f9fc;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a2f6b 50%, #0d3b6e 100%);
+    color: white;
+    padding: 60px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(19,181,163,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245,166,35,0.1) 0%, transparent 40%);
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(19,181,163,0.2);
+    border: 1px solid rgba(19,181,163,0.4);
+    color: var(--teal-light);
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .hero h1 span { color: var(--gold-light); }
+  .hero-sub {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 560px;
+    margin: 0 auto 40px;
+    position: relative;
+  }
+  .hero-formula {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 22px 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    color: var(--gold-light);
+    position: relative;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* SECTION TITLES */
+  .section {
+    padding: 60px 24px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+  .section-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  /* CARDS GRID */
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  /* WHAT IS IT */
+  .card-navy { border-top: 4px solid var(--navy); }
+  .card-teal { border-top: 4px solid var(--teal); }
+  .card-gold { border-top: 4px solid var(--gold); }
+
+  .formula-box {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 2px dashed var(--teal-light);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 1.3rem;
+    color: var(--navy);
+    margin: 16px 0;
+  }
+
+  .variable-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .variable-list li {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.95rem;
+  }
+  .var-badge {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* WHEN TO USE */
+  .use-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+  .use-item:last-child { border-bottom: none; }
+  .use-dot {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+
+  .examples-row {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
+  }
+  .example-pill {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+  /* ILATE */
+  .ilate-list { display: flex; flex-direction: column; gap: 10px; }
+  .ilate-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  .ilate-item:hover { background: var(--bg); }
+  .ilate-letter {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.1rem; flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+  }
+  .ilate-content strong { display: block; font-size: 0.95rem; }
+  .ilate-content span { color: var(--muted); font-size: 0.83rem; font-family: 'DM Mono', monospace; }
+
+  /* STEPS */
+  .steps-section {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a2f6b 100%);
+    padding: 70px 24px;
+  }
+  .steps-section .section-title { color: white; }
+  .steps-section .section-title::after { background: linear-gradient(to right, rgba(255,255,255,0.2), transparent); }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+  }
+  .step-card {
+    padding: 30px 24px;
+    position: relative;
+    text-align: center;
+  }
+  .step-card:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.3);
+    font-size: 1.8rem;
+    z-index: 1;
+  }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.4rem;
+    margin: 0 auto 18px;
+    font-family: 'Playfair Display', serif;
+  }
+  .step-card h3 {
+    font-family: 'Playfair Display', serif;
+    color: white; font-size: 1rem; margin-bottom: 12px;
+  }
+  .step-formula {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--gold-light);
+    margin-top: 12px;
+  }
+  .step-icon { font-size: 2.2rem; margin-bottom: 10px; }
+
+  /* EXAMPLE */
+  .example-section { padding: 70px 24px; }
+
+  .example-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+  }
+  .example-header {
+    background: linear-gradient(90deg, var(--teal) 0%, var(--teal-light) 100%);
+    padding: 24px 36px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .example-header h3 {
+    font-family: 'Playfair Display', serif;
+    color: white; font-size: 1.2rem;
+  }
+  .example-header .formula {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.9);
+    margin-left: auto;
+  }
+
+  .steps-list { padding: 0; }
+  .step-row {
+    display: flex; align-items: center; gap: 20px;
+    padding: 18px 36px;
+    border-bottom: 1px solid var(--bg);
+    transition: background 0.15s;
+  }
+  .step-row:hover { background: #f8fafc; }
+  .step-row:last-child { border-bottom: none; }
+  .step-label {
+    background: var(--teal);
+    color: white;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .step-desc { color: var(--muted); font-size: 0.9rem; flex: 1; }
+  .step-math {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+  .result-box {
+    background: linear-gradient(135deg, #fefce8, #fef9c3);
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 28px 36px;
+    margin: 24px 36px;
+    text-align: center;
+  }
+  .result-box .label {
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .result-box .formula-final {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.6rem;
+    color: var(--navy);
+    font-weight: 500;
+  }
+  .result-box .note { color: var(--muted); font-size: 0.85rem; margin-top: 10px; }
+
+  /* QUICK EXAMPLE */
+  .quick-card {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 20px;
+    padding: 36px;
+    color: white;
+    position: relative; overflow: hidden;
+  }
+  .quick-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  }
+  .quick-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; margin-bottom: 16px;
+    opacity: 0.85;
+  }
+  .quick-formula {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    background: rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 16px;
+  }
+  .quick-result-label { opacity: 0.7; font-size: 0.85rem; margin-bottom: 8px; }
+  .quick-result {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.3rem;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    padding: 14px 24px;
+    color: var(--gold-light);
+  }
+
+  /* TABLE */
+  .table-section {
+    background: var(--navy);
+    padding: 70px 24px;
+  }
+  .table-section .section-title { color: white; }
+  .table-section .section-title::after { background: linear-gradient(to right, rgba(255,255,255,0.2), transparent); }
+
+  .ilate-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+  }
+  .ilate-table thead th {
+    background: var(--teal);
+    color: white;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .ilate-table tbody tr {
+    border-bottom: 1px solid var(--bg);
+    transition: background 0.15s;
+  }
+  .ilate-table tbody tr:hover { background: #f0fdfa; }
+  .ilate-table tbody tr:last-child { border-bottom: none; }
+  .ilate-table td {
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  .ilate-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--navy);
+    font-weight: 500;
+  }
+  .ilate-dots {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .ilate-dot {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; color: white;
+  }
+  .code-val {
+    font-family: 'DM Mono', monospace;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    color: var(--navy);
+  }
+
+  /* BENEFITS */
+  .benefits-section { padding: 70px 24px; }
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .benefit-card {
+    display: flex; gap: 18px; align-items: flex-start;
+    padding: 24px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .benefit-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  .benefit-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+  .benefit-card h4 {
+    font-weight: 600; font-size: 1rem; margin-bottom: 6px; color: var(--navy);
+  }
+  .benefit-card p { color: var(--muted); font-size: 0.88rem; }
+
+  /* NOTE */
+  .note-card {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #93c5fd;
+    border-left: 5px solid var(--blue);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex; gap: 18px; align-items: flex-start;
+  }
+  .note-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .note-card h4 { font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+  .note-card p { color: #1e40af; font-size: 0.9rem; }
+  .note-card code {
+    font-family: 'DM Mono', monospace;
+    background: rgba(37,99,235,0.1);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 32px;
+    font-size: 0.85rem;
+  }
+  footer span { color: var(--teal-light); font-weight: 600; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card, .step-card, .benefit-card, .example-card, .ilate-item {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @media (max-width: 768px) {
+    .steps-grid { grid-template-columns: 1fr; }
+    .step-card::after { display: none; }
+    .step-row { flex-wrap: wrap; gap: 8px; }
+    .example-header { flex-direction: column; text-align: center; }
+    .ilate-table { font-size: 0.8rem; }
+    .ilate-table thead th, .ilate-table td { padding: 12px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Cálculo Integral</div>
+  <h1>Integración<br><span>por Partes</span></h1>
+  <p class="hero-sub">Técnica de cálculo integral que se utiliza para integrar productos de funciones.</p>
+  <div class="hero-formula">∫ u dv = uv − ∫ v du</div>
+</section>
+
+<!-- ¿QUÉ ES? / ¿CUÁNDO SE USA? / ILATE -->
+<div class="container">
+  <section class="section">
+    <div class="grid-3">
+
+      <!-- QUÉ ES -->
+      <div class="card card-navy">
+        <div class="card-title">
+          <div class="badge" style="background:#e0f2fe;color:var(--navy)">❓</div>
+          ¿Qué es?
+        </div>
+        <p style="color:var(--muted);font-size:0.9rem;margin-bottom:16px;">Método basado en la regla del producto de derivación:</p>
+        <div class="formula-box">∫ u dv = uv − ∫ v du</div>
+        <ul class="variable-list" style="margin-top:16px">
+          <li><span class="var-badge" style="background:#dbeafe;color:#1d4ed8">u</span> función que se deriva</li>
+          <li><span class="var-badge" style="background:#dcfce7;color:#15803d">dv</span> función que se integra</li>
+          <li><span class="var-badge" style="background:#fef9c3;color:#a16207">du</span> derivada de u</li>
+          <li><span class="var-badge" style="background:#fce7f3;color:#9d174d">v</span> integral de dv</li>
+        </ul>
+      </div>
+
+      <!-- CUÁNDO SE USA -->
+      <div class="card card-teal">
+        <div class="card-title">
+          <div class="badge" style="background:#ccfbf1;color:var(--teal)">⏱</div>
+          ¿Cuándo se usa?
+        </div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:12px;">Se utiliza principalmente cuando la integral contiene:</p>
+        <div class="use-item">
+          <div class="use-dot" style="background:#dbeafe">🔢</div>
+          <span>Productos de funciones</span>
+        </div>
+        <div class="use-item">
+          <div class="use-dot" style="background:#dcfce7">📊</div>
+          <span>Logaritmos</span>
+        </div>
+        <div class="use-item">
+          <div class="use-dot" style="background:#fef9c3">〰️</div>
+          <span>Funciones trigonométricas con polinomios</span>
+        </div>
+        <div class="use-item">
+          <div class="use-dot" style="background:#fce7f3">𝑒</div>
+          <span>Funciones exponenciales multiplicadas</span>
+        </div>
+        <p style="font-size:0.82rem;font-weight:600;color:var(--teal);margin-top:16px;margin-bottom:10px;">EJEMPLOS:</p>
+        <div class="examples-row">
+          <span class="example-pill">∫ xeˣ dx</span>
+          <span class="example-pill">∫ x·sin(x) dx</span>
+          <span class="example-pill">∫ ln(x) dx</span>
+        </div>
+      </div>
+
+      <!-- ILATE -->
+      <div class="card card-gold">
+        <div class="card-title">
+          <div class="badge" style="background:#fef9c3;color:#a16207">⭐</div>
+          Método ILATE
+        </div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px;">Elige la función <strong>u</strong> seleccionando la primera que aparezca en la lista:</p>
+        <div class="ilate-list">
+          <div class="ilate-item">
+            <div class="ilate-letter" style="background:#e0f2fe;color:#0369a1">I</div>
+            <div class="ilate-content">
+              <strong>Inversas trigonométricas</strong>
+              <span>arcsin x, arctan x, etc.</span>
+            </div>
+          </div>
+          <div class="ilate-item">
+            <div class="ilate-letter" style="background:#dcfce7;color:#15803d">L</div>
+            <div class="ilate-content">
+              <strong>Logarítmicas</strong>
+              <span>ln x, log x</span>
+            </div>
+          </div>
+          <div class="ilate-item">
+            <div class="ilate-letter" style="background:#fef9c3;color:#a16207">A</div>
+            <div class="ilate-content">
+              <strong>Algebraicas</strong>
+              <span>polinomios, raíces, xⁿ, etc.</span>
+            </div>
+          </div>
+          <div class="ilate-item">
+            <div class="ilate-letter" style="background:#fce7f3;color:#9d174d">T</div>
+            <div class="ilate-content">
+              <strong>Trigonométricas</strong>
+              <span>sen x, cos x, tan x, etc.</span>
+            </div>
+          </div>
+          <div class="ilate-item">
+            <div class="ilate-letter" style="background:#ede9fe;color:#6d28d9">E</div>
+            <div class="ilate-content">
+              <strong>Exponenciales</strong>
+              <span>eˣ, aˣ</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:14px;">⭐ La primera que aparezca es la que se elige como <strong>u</strong>.</p>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- PASOS -->
+<section class="steps-section">
+  <div class="container">
+    <h2 class="section-title" style="color:white">
+      <div class="section-icon" style="background:rgba(255,255,255,0.15)">📋</div>
+      Pasos para Resolver
+      <span style="height:2px;flex:1;background:linear-gradient(to right,rgba(255,255,255,0.2),transparent);display:block"></span>
+    </h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num" style="background:var(--teal);color:white">1</div>
+        <div class="step-icon">🔍</div>
+        <h3>Elegir u y dv</h3>
+        <p style="color:rgba(255,255,255,0.6);font-size:0.85rem">Usa la regla ILATE para escoger <em>u</em>. La primera letra de ILATE es la que se deriva.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background:var(--gold);color:var(--navy)">2</div>
+        <div class="step-icon">🧮</div>
+        <h3>Derivar u</h3>
+        <p style="color:rgba(255,255,255,0.6);font-size:0.85rem">Calcular la derivada de la función elegida.</p>
+        <div class="step-formula">du = (du/dx) dx</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background:#7c3aed;color:white">3</div>
+        <div class="step-icon">∫</div>
+        <h3>Integrar dv</h3>
+        <p style="color:rgba(255,255,255,0.6);font-size:0.85rem">Calcular la integral de la función restante.</p>
+        <div class="step-formula">v = ∫ dv</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background:#e84393;color:white">4</div>
+        <div class="step-icon">📝</div>
+        <h3>Sustituir en la Fórmula</h3>
+        <p style="color:rgba(255,255,255,0.6);font-size:0.85rem">Aplicar la fórmula principal con los valores obtenidos.</p>
+        <div class="step-formula">∫ u dv = uv − ∫ v du</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EJEMPLO RESUELTO -->
+<section class="example-section">
+  <div class="container">
+    <h2 class="section-title">
+      <div class="section-icon" style="background:#dcfce7">✏️</div>
+      Ejemplo Resuelto Paso a Paso
+    </h2>
+    <div class="grid-2">
+      <div class="example-card">
+        <div class="example-header">
+          <div>
+            <h3>Resolver:</h3>
+            <span style="color:rgba(255,255,255,0.7);font-size:0.85rem">Aplicando integración por partes</span>
+          </div>
+          <div class="formula">∫ xeˣ dx</div>
+        </div>
+        <div class="steps-list">
+          <div class="step-row">
+            <span class="step-label">Paso 1</span>
+            <span class="step-desc">Elegir u y dv</span>
+            <span class="step-math">u = x &nbsp;&nbsp; dv = eˣ dx</span>
+          </div>
+          <div class="step-row">
+            <span class="step-label">Paso 2</span>
+            <span class="step-desc">Derivar u</span>
+            <span class="step-math">du = dx</span>
+          </div>
+          <div class="step-row">
+            <span class="step-label">Paso 3</span>
+            <span class="step-desc">Integrar dv</span>
+            <span class="step-math">v = eˣ</span>
+          </div>
+          <div class="step-row">
+            <span class="step-label">Paso 4</span>
+            <span class="step-desc">Aplicar fórmula</span>
+            <span class="step-math">∫ xeˣ dx = xeˣ − ∫ eˣ dx</span>
+          </div>
+          <div class="step-row">
+            <span class="step-label">Paso 5</span>
+            <span class="step-desc">Resolver integral restante</span>
+            <span class="step-math">= xeˣ − eˣ + C</span>
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="label">⭐ Resultado Final</div>
+          <div class="formula-final">∫ xeˣ dx = eˣ(x − 1) + C</div>
+          <div class="note">Donde C es la constante de integración.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="quick-card">
+          <h3>Otro Ejemplo Rápido</h3>
+          <div class="quick-formula">∫ x·cos(x) dx</div>
+          <div class="quick-result-label">Resultado:</div>
+          <div class="quick-result">x·sin(x) + cos(x) + C</div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-icon">📌</div>
+          <div>
+            <h4>Nota Importante</h4>
+            <p>Si después de aplicar la fórmula <code>∫ u dv = uv − ∫ v du</code> la integral resultante aún es complicada, puedes aplicar el método por partes <strong>nuevamente</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABLA ILATE -->
+<section class="table-section">
+  <div class="container">
+    <h2 class="section-title" style="color:white">
+      <div class="section-icon" style="background:rgba(255,255,255,0.15)">📊</div>
+      Ejemplos de Elección con ILATE
+    </h2>
+    <div style="overflow-x:auto;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+      <table class="ilate-table">
+        <thead>
+          <tr>
+            <th>Ejemplo</th>
+            <th>Funciones en la integral</th>
+            <th>Orden ILATE</th>
+            <th>Elección de u</th>
+            <th>Elección de dv</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>∫ ln(x)·x² dx</td>
+            <td>ln(x) · x²</td>
+            <td>
+              <div class="ilate-dots">
+                <div class="ilate-dot" style="background:#0369a1">I</div>
+                <div class="ilate-dot" style="background:#15803d;opacity:0.4">L</div>
+                <div class="ilate-dot" style="background:#a16207;opacity:0.4">A</div>
+                <div class="ilate-dot" style="background:#9d174d;opacity:0.4">T</div>
+                <div class="ilate-dot" style="background:#6d28d9;opacity:0.4">E</div>
+              </div>
+              <span style="font-size:0.75rem;color:var(--muted)">(L es la primera)</span>
+            </td>
+            <td><span class="code-val">u = ln(x)</span></td>
+            <td><span class="code-val">dv = x² dx</span></td>
+          </tr>
+          <tr>
+            <td>∫ x·sin(x) dx</td>
+            <td>x · sin(x)</td>
+            <td>
+              <div class="ilate-dots">
+                <div class="ilate-dot" style="background:#0369a1;opacity:0.4">I</div>
+                <div class="ilate-dot" style="background:#15803d;opacity:0.4">L</div>
+                <div class="ilate-dot" style="background:#a16207">A</div>
+                <div class="ilate-dot" style="background:#9d174d;opacity:0.4">T</div>
+                <div class="ilate-dot" style="background:#6d28d9;opacity:0.4">E</div>
+              </div>
+              <span style="font-size:0.75rem;color:var(--muted)">(A es la primera)</span>
+            </td>
+            <td><span class="code-val">u = x</span></td>
+            <td><span class="code-val">dv = sin(x) dx</span></td>
+          </tr>
+          <tr>
+            <td>∫ eˣ·cos(x) dx</td>
+            <td>eˣ · cos(x)</td>
+            <td>
+              <div class="ilate-dots">
+                <div class="ilate-dot" style="background:#0369a1;opacity:0.4">I</div>
+                <div class="ilate-dot" style="background:#15803d;opacity:0.4">L</div>
+                <div class="ilate-dot" style="background:#a16207;opacity:0.4">A</div>
+                <div class="ilate-dot" style="background:#9d174d">T</div>
+                <div class="ilate-dot" style="background:#6d28d9;opacity:0.4">E</div>
+              </div>
+              <span style="font-size:0.75rem;color:var(--muted)">(T es la primera)</span>
+            </td>
+            <td><span class="code-val">u = cos(x)</span></td>
+            <td><span class="code-val">dv = eˣ dx</span></td>
+          </tr>
+          <tr>
+            <td>∫ arctan(x)·eˣ dx</td>
+            <td>arctan(x) · eˣ</td>
+            <td>
+              <div class="ilate-dots">
+                <div class="ilate-dot" style="background:#0369a1">I</div>
+                <div class="ilate-dot" style="background:#15803d;opacity:0.4">L</div>
+                <div class="ilate-dot" style="background:#a16207;opacity:0.4">A</div>
+                <div class="ilate-dot" style="background:#9d174d;opacity:0.4">T</div>
+                <div class="ilate-dot" style="background:#6d28d9;opacity:0.4">E</div>
+              </div>
+              <span style="font-size:0.75rem;color:var(--muted)">(I es la primera)</span>
+            </td>
+            <td><span class="code-val">u = arctan(x)</span></td>
+            <td><span class="code-val">dv = eˣ dx</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- VENTAJAS -->
+<section class="benefits-section">
+  <div class="container">
+    <h2 class="section-title">
+      <div class="section-icon" style="background:#fef9c3">✅</div>
+      Ventajas del Método
+    </h2>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon" style="background:#dcfce7">🧩</div>
+        <div>
+          <h4>Simplifica integrales complicadas</h4>
+          <p>Convierte integrales difíciles en otras más sencillas de resolver mediante la división del problema.</p>
+        </div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon" style="background:#dbeafe">📐</div>
+        <div>
+          <h4>Muy útil en cálculo diferencial e integral</h4>
+          <p>Aplica directamente tanto en el análisis matemático avanzado como en problemas aplicados.</p>
+        </div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon" style="background:#ede9fe">🔓</div>
+        <div>
+          <h4>Resuelve integrales imposibles con métodos básicos</h4>
+          <p>Permite abordar integrales que no pueden resolverse con sustitución u otras técnicas elementales.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMEN -->
+    <div style="margin-top:40px;background:linear-gradient(135deg,var(--navy),#1a2f6b);border-radius:20px;padding:36px;display:flex;align-items:center;gap:30px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px">
+        <p style="color:rgba(255,255,255,0.5);font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Resumen</p>
+        <p style="color:white;font-size:1rem;">Se usa en <strong style="color:var(--gold-light)">productos de funciones</strong> y convierte una integral difícil en una más sencilla.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:20px 32px;font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--gold-light);text-align:center;">
+        ∫ u dv = uv − ∫ v du
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Integración por Partes · Técnica de <span>Cálculo Integral</span> · Referencia educativa
+</footer>
+
+</body>
+</html>
